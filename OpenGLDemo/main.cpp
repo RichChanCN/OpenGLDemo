@@ -83,7 +83,7 @@ int main()
     Shader model_shader("shaders\\load_model_vs.glsl", "shaders\\load_model_fs.glsl");
 
     //load model
-    Model iron_man("assets\\models\\IronMan\\IronMan.obj");
+    Model iron_man("assets\\models\\nanosuit\\nanosuit.obj");
 
     glm::vec3 lightPos(0.0f, 15.0f, 5.0f);
     bool down = true;
