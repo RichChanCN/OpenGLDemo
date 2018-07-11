@@ -42,6 +42,9 @@
     <ClInclude Include="light.h">
       <Filter>头文件</Filter>
     </ClInclude>
+    <ClInclude Include="mymathlib.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="glad.c">
@@ -72,6 +75,9 @@
       <Filter>源文件</Filter>
     </ClCompile>
     <ClCompile Include="demomain.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="mymathlib.cpp">
       <Filter>源文件</Filter>
     </ClCompile>
   </ItemGroup>

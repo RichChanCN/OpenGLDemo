@@ -5,33 +5,12 @@
 #include <glm/gtc/matrix_transform.hpp>
 #include "shader.h"
 #include "model.h"
+#include "mymathlib.h"
 
 enum Type{
     COMMON_OBJECT,
     BLEND_OBJECT,
     EMPTY,
-};
-
-struct Quat{
-    Quat(){
-        x = 0.0f;
-        y = 1.0f;
-        z = 0.0f;
-        w = 0.0f;
-    }
-    Quat(float xx, float yy, float zz, float ww){
-        x = xx;
-        y = yy;
-        z = zz;
-        w = ww;
-    }
-    glm::vec3 axis(){
-        return glm::vec3(x, y, z);
-    }
-    float x;
-    float y;
-    float z;
-    float w;
 };
 
 class GameObject{
@@ -70,6 +49,7 @@ private:
     Type type;
     Model* model;
     Shader* shader;
-    glm::mat4 getModelMat(GameObject* root);
+	glm::mat4 getModelMat(GameObject* root);
+	mymathlib::Mat4 getModelMat1(GameObject* root);
 };
 #endif
