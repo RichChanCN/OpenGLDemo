@@ -21,6 +21,15 @@
 #include <vector>
 using namespace std;
 
+struct Frame {
+    vector <Mesh*> meshes;
+};
+
+struct Animation {
+    string name;
+    vector <Frame*> frames;
+};
+
 static unsigned int TextureFromFile(const char *path, const string &directory, bool gamma = false);
 
 class Model 
@@ -29,7 +38,10 @@ public:
     /*  Model Data */
     vector<Texture> textures_loaded;	// stores all the textures loaded so far, optimization to make sure textures aren't loaded more than once.
     vector<Mesh> meshes;
+    map<string, unsigned> bone_mapping;
+    vector<Animation *> animations;
     string directory;
+    vector<BoneInfo> bone_infos;
     bool gammaCorrection;
 
     /*  Functions   */

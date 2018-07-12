@@ -52,4 +52,26 @@ namespace mymathlib
 	Mat4 rotate(Mat4 m, Quat a){
 		return r(m, a.axis(), a.w);
 	}
+
+    glm::mat4 aiMat_cast(const aiMatrix4x4 aimat){
+        glm::mat4 mat = glm::mat4();
+        mat[0][0] = aimat.a1;
+        mat[0][1] = aimat.a2;
+        mat[0][2] = aimat.a3;
+        mat[0][3] = aimat.a4;
+        mat[1][0] = aimat.b1;
+        mat[1][1] = aimat.b2;
+        mat[1][2] = aimat.b3;
+        mat[1][3] = aimat.b4;
+        mat[2][0] = aimat.c1;
+        mat[2][1] = aimat.c2;
+        mat[2][2] = aimat.c3;
+        mat[2][3] = aimat.c4;
+        mat[3][0] = aimat.d1;
+        mat[3][1] = aimat.d2;
+        mat[3][2] = aimat.d3;
+        mat[3][3] = aimat.d4;
+
+        return mat;
+    }
 }

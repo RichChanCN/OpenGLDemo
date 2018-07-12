@@ -50,7 +50,6 @@ void Game::gameloop(){
     }
     // optional: de-allocate all resources once they've outlived their purpose:
     // ------------------------------------------------------------------------
-    glfwTerminate();
     return;
 }
 

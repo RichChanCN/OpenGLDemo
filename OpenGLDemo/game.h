@@ -27,6 +27,7 @@ private:
         initWindow();
     }
     ~Game(){
+        glfwTerminate();
         delete(scene);
         delete(window);
         delete(instance);

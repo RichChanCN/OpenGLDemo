@@ -4,6 +4,10 @@
 #include <glm/gtc/matrix_transform.hpp>
 #include <math.h>
 
+#include <assimp/Importer.hpp>
+#include <assimp/scene.h>
+#include <assimp/postprocess.h>
+
 struct Quat{
 	Quat(){
 		x = 0.0f;
@@ -67,6 +71,8 @@ namespace mymathlib
 	Mat4 scale(Mat4 m, glm::vec3 v);
 	Mat4 r(Mat4 m, glm::vec3 v, float angles);
 	Mat4 rotate(Mat4 m, Quat a);
+
+    glm::mat4 aiMat_cast(const aiMatrix4x4 aimat);
 }
 
 

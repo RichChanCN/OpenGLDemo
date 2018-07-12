@@ -50,7 +50,11 @@ Mesh Model::processMesh(aiMesh *mesh, const aiScene *scene)
     vector<Vertex> vertices;
     vector<unsigned int> indices;
     vector<Texture> textures;
+    vector<VertexBoneData> bones;
+    //为了防止向量多次自动扩容影响加载速度
+    vertices.reserve(mesh->mNumVertices);
 
+    unsigned int bones_num = 0;
     // Walk through each of the mesh's vertices
     for (unsigned int i = 0; i < mesh->mNumVertices; i++)
     {
@@ -78,23 +82,55 @@ Mesh Model::processMesh(aiMesh *mesh, const aiScene *scene)
         }
         else
             vertex.TexCoords = glm::vec2(0.0f, 0.0f);
-        // tangent
-        if (mesh->mTangents)
-        {
-            vector.x = mesh->mTangents[i].x;
-            vector.y = mesh->mTangents[i].y;
-            vector.z = mesh->mTangents[i].z;
-            vertex.Tangent = vector;
+        /* delete the property for moment
+        if (mesh->HasTangentsAndBitangents()){
+            // tangent
+            if (mesh->mTangents)
+            {
+                vector.x = mesh->mTangents[i].x;
+                vector.y = mesh->mTangents[i].y;
+                vector.z = mesh->mTangents[i].z;
+                vertex.Tangent = vector;
+            }
+            // bitangent
+            if (mesh->mBitangents)
+            {
+                vector.x = mesh->mBitangents[i].x;
+                vector.y = mesh->mBitangents[i].y;
+                vector.z = mesh->mBitangents[i].z;
+                vertex.Bitangent = vector;
+            }
         }
-        // bitangent
-        if (mesh->mBitangents)
-        {
-            vector.x = mesh->mBitangents[i].x;
-            vector.y = mesh->mBitangents[i].y;
-            vector.z = mesh->mBitangents[i].z;
-            vertex.Bitangent = vector;
-        }
+        */
         vertices.push_back(vertex);
+    }
+    //bones
+    if (mesh->HasBones()){
+        bones.resize(mesh->mNumVertices);
+        for (unsigned int i = 0; i < mesh->mNumBones; i++) {
+            unsigned BoneIndex = 0;
+            string BoneName(mesh->mBones[i]->mName.data);
+
+            if (bone_mapping.find(BoneName) == bone_mapping.end()) {
+                BoneIndex = bones_num;
+                bones_num++;
+                BoneInfo binfo;
+                bone_infos.push_back(binfo);
+                bone_mapping[BoneName] = BoneIndex;
+            }
+            else {
+                BoneIndex = bone_mapping[BoneName];
+            }
+            if (BoneIndex >= bone_infos.size()){
+                bone_infos.resize(BoneIndex);
+            }
+            bone_infos[BoneIndex].BoneOffsetMat4 = mesh->mBones[i]->mOffsetMatrix;
+
+            for (unsigned j = 0; j < mesh->mBones[i]->mNumWeights; j++) {
+                float Weight = mesh->mBones[i]->mWeights[j].mWeight;
+                bones[mesh->mBones[i]->mWeights[j].mVertexId].addBoneData(BoneIndex, Weight);
+            }
+        }
     }
     // now wak through each of the mesh's faces (a face is a mesh its triangle) and retrieve the corresponding vertex indices.
     for (unsigned int i = 0; i < mesh->mNumFaces; i++)
@@ -140,7 +176,7 @@ Mesh Model::processMesh(aiMesh *mesh, const aiScene *scene)
     textures.insert(textures.end(), heightMaps.begin(), heightMaps.end());
 
     // return a mesh object created from the extracted mesh data
-    return Mesh(vertices, indices, textures, mat);
+    return Mesh(this, scene, vertices, indices, textures, bones, mat);
 }
 
 // checks all material textures of a given type and loads the textures if they're not loaded yet.
