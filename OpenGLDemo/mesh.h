@@ -22,7 +22,7 @@ struct VertexBoneData
     VertexBoneData(){
         for (int i = 0; i < NUM_BONES_PER_VEREX; i++)
         {
-            IDs[i] = -1;
+            IDs[i] = 100;
             Weights[i] = 0.0f;
         }
     }
@@ -32,7 +32,7 @@ struct VertexBoneData
     void addBoneData(unsigned id, float w){
         for (int i = 0; i < NUM_BONES_PER_VEREX; i++)
         {
-            if (IDs[i] == -1){
+            if (IDs[i] == 100){
                 IDs[i] = id;
                 Weights[i] = w;
                 return;
@@ -99,19 +99,20 @@ public:
     vector<Vertex> vertices;
     vector<unsigned int> indices;
     vector<Texture> textures;
-    vector<VertexBoneData> bones;
     Material material;
     unsigned int VAO;
-
+	bool hasBone;
+	int boneNum;
     /*  Functions  */
     // constructor
-    Mesh(const Model* m, const aiScene* sc, vector<Vertex> vertices, vector<unsigned int> indices, vector<Texture> textures, vector<VertexBoneData> bones, Material material = Material()) :scene(sc), model(m)
+	Mesh(const Model* m, const aiScene* sc, vector<Vertex> vertices, vector<unsigned int> indices, vector<Texture> textures, bool hasBone = false, int boneNum = 0, Material material = Material()) :scene(sc), model(m)
     {
         this->vertices = vertices;
         this->indices = indices;
         this->textures = textures;
         this->material = material;
-        this->bones = bones;
+		this->hasBone = hasBone;
+		this->boneNum = boneNum;
         // now that we have all the required data, set the vertex buffers and its attribute pointers.
         setupMesh();
     }
@@ -129,7 +130,6 @@ private:
     // initializes all the buffer objects/arrays
     void setupMesh();
     //animation
-    void CalcInterpolatedRotation(aiQuaternion& Out, float AnimationTime, const aiNodeAnim* pNodeAnim);
     void ReadNodeHeirarchy(float AnimationTime, const aiNode* pNode, const aiMatrix4x4& ParentTransform);
 
     void CalcInterpolatedRotation(aiQuaternion& Out, float AnimationTime, const aiNodeAnim* pNodeAnim);
@@ -141,6 +141,6 @@ private:
     unsigned int FindPosition(float AnimationTime, const aiNodeAnim* pNodeAnim);
 
     const aiNodeAnim* FindNodeAnim(const aiAnimation* pAnimation, const string NodeName);
-    aiMatrix4x4 Mesh::BoneTransform(float TimeInSeconds, vector<glm::mat4>& Transforms);
+    void Mesh::BoneTransform(float TimeInSeconds, vector<glm::mat4>& Transforms);
 };
 #endif

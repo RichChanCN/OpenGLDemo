@@ -10,8 +10,9 @@ void Model::Draw(Shader* shader)
 void Model::loadModel(string const &path)
 {
     // read file via ASSIMP
-    Assimp::Importer importer;
-    const aiScene* scene = importer.ReadFile(path, aiProcess_Triangulate | aiProcess_FlipUVs | aiProcess_CalcTangentSpace);
+ //   Assimp::Importer importer;
+	//const aiScene*  scene = importer.ReadFile(path, aiProcess_Triangulate | aiProcess_FlipUVs | aiProcess_CalcTangentSpace);
+
     // check for errors
     if (!scene || scene->mFlags & AI_SCENE_FLAGS_INCOMPLETE || !scene->mRootNode) // if is Not Zero
     {
@@ -50,7 +51,8 @@ Mesh Model::processMesh(aiMesh *mesh, const aiScene *scene)
     vector<Vertex> vertices;
     vector<unsigned int> indices;
     vector<Texture> textures;
-    vector<VertexBoneData> bones;
+
+	bool hasBone = false;
     //为了防止向量多次自动扩容影响加载速度
     vertices.reserve(mesh->mNumVertices);
 
@@ -106,7 +108,7 @@ Mesh Model::processMesh(aiMesh *mesh, const aiScene *scene)
     }
     //bones
     if (mesh->HasBones()){
-        bones.resize(mesh->mNumVertices);
+		hasBone = true;
         for (unsigned int i = 0; i < mesh->mNumBones; i++) {
             unsigned BoneIndex = 0;
             string BoneName(mesh->mBones[i]->mName.data);
@@ -128,7 +130,7 @@ Mesh Model::processMesh(aiMesh *mesh, const aiScene *scene)
 
             for (unsigned j = 0; j < mesh->mBones[i]->mNumWeights; j++) {
                 float Weight = mesh->mBones[i]->mWeights[j].mWeight;
-                bones[mesh->mBones[i]->mWeights[j].mVertexId].addBoneData(BoneIndex, Weight);
+				vertices[j].bonedata.addBoneData(BoneIndex, Weight);
             }
         }
     }
@@ -176,7 +178,7 @@ Mesh Model::processMesh(aiMesh *mesh, const aiScene *scene)
     textures.insert(textures.end(), heightMaps.begin(), heightMaps.end());
 
     // return a mesh object created from the extracted mesh data
-    return Mesh(this, scene, vertices, indices, textures, bones, mat);
+	return Mesh(this, scene, vertices, indices, textures, hasBone, mesh->mNumBones, mat);
 }
 
 // checks all material textures of a given type and loads the textures if they're not loaded yet.

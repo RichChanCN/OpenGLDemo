@@ -26,13 +26,20 @@ void Mesh::Draw(Shader* shader)
     shader->setFloat("tex_material.shininess", 32.0);
     shader->setFloat("material.shininess", 32.0);
 
-    vector<glm::mat4> transform;
-
-    BoneTransform(1.5f, transform);
-    for (size_t i = 0; i < transform.size(); i++)
-    {
-        shader->setMat4("", transform[i]);
-    }
+	shader->setBool("hasBone", hasBone);
+	if (hasBone){
+		shader->setInt("boneNum", boneNum);
+		vector<glm::mat4> transform;
+		transform.resize(boneNum);
+		BoneTransform(1.5f, transform);
+		char name[128];
+		memset(name, 0, sizeof(name));
+		for (size_t i = 0; i < transform.size(); i++)
+		{
+			_snprintf_s(name, sizeof(name), "gBones[%d]", i);
+			shader->setMat4(name, transform[i]);
+		}
+	}
 
     // draw mesh
     glBindVertexArray(VAO);
@@ -232,9 +239,11 @@ void Mesh::ReadNodeHeirarchy(float AnimationTime, const aiNode* pNode, const aiM
 }
 
 
-aiMatrix4x4 Mesh::BoneTransform(float TimeInSeconds, vector<glm::mat4>& Transforms)
+void Mesh::BoneTransform(float TimeInSeconds, vector<glm::mat4>& Transforms)
 {
     aiMatrix4x4 Identity;
+	if (!scene->HasAnimations())
+		return ;
 
     float TicksPerSecond = scene->mAnimations[0]->mTicksPerSecond != 0 ?
         scene->mAnimations[0]->mTicksPerSecond : 25.0f;

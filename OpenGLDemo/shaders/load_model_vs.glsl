@@ -15,25 +15,27 @@ uniform mat4 projection;
 
 const int MAX_BONES = 100;
 uniform bool hasBone;
+uniform int boneNum;
 uniform mat4 gBones[MAX_BONES];
 
 void main()
 {
 	vec4 NormalL;
 	vec4 PosL;
-	if£¨hasBone){
-		mat4 BoneTransform = gBones[BoneIDs[0]] * Weights[0];
-		BoneTransform += gBones[BoneIDs[1]] * Weights[1];
-		BoneTransform += gBones[BoneIDs[2]] * Weights[2];
-		BoneTransform += gBones[BoneIDs[3]] * Weights[3];
+	if(hasBone){
 
-		PosL = BoneTransform * vec4(Position, 1.0);
+		mat4 BoneTransform = gBones[BoneIDs[0]] * Weights[0];
+		for (int i = 1; i < boneNum; i++){
+			BoneTransform += gBones[BoneIDs[i]] * Weights[i];
+		}
+
+		PosL = BoneTransform * vec4(aPos, 1.0);
 
 		FragPos = vec3(model * PosL);
 
-		NormalL = BoneTransform * vec4(aNormal, 0.0)
+		NormalL = BoneTransform * vec4(aNormal, 0.0);
 
-		Normal = mat3(transpose(inverse(model))) * NormalL.xyz;
+		Normal = mat3(transpose(inverse(model))) * vec3(NormalL.x, NormalL.y, NormalL.z);
 
 		TexCoords = aTexCoords;  
 		  

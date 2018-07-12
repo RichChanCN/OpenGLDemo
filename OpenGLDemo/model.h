@@ -46,8 +46,11 @@ public:
 
     /*  Functions   */
     // constructor, expects a filepath to a 3D model.
-    Model(string const &path, bool gamma = false) : gammaCorrection(gamma)
+	Model(string const &path, bool gamma = false) :
+		gammaCorrection(gamma), 
+		importer(Assimp::Importer())
     {
+		scene = importer.ReadFile(path, aiProcess_Triangulate | aiProcess_FlipUVs | aiProcess_CalcTangentSpace);
         loadModel(path);
     }
 
@@ -55,6 +58,8 @@ public:
     void Draw(Shader* shader);
     
 private:
+	const aiScene*  scene;
+	Assimp::Importer importer;
     /*  Functions   */
     // loads a model with supported ASSIMP extensions from file and stores the resulting meshes in the meshes vector.
     void loadModel(string const &path);
