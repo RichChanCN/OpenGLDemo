@@ -61,7 +61,7 @@ public:
     }
 
     // draws the model, and thus all its meshes
-    void Draw(Shader* shader);
+    void Draw(Shader* shader,float time);
     
 private:
 	const aiScene*  scene;

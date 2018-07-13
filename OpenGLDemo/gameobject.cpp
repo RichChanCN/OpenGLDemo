@@ -3,13 +3,13 @@ void GameObject::add(GameObject* child){
     child->parent = this;
 }
 
-void GameObject::draw(){
+void GameObject::draw(float time){
     if (model == NULL || type == EMPTY || shader == NULL)
         return;
     glm::mat4 model_mat = getModelMat1(this).tomat4();
     shader->setMat4("model", model_mat);
 
-    model->Draw(shader);
+    model->Draw(shader, time);
 }
 /*
 glm::mat4 GameObject::getModelMat(GameObject* root){

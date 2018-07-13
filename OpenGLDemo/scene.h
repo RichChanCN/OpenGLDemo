@@ -17,7 +17,7 @@ public:
     vector<Shader> shader_list;
     vector<GameObject *> common_object_list;
     vector<GameObject *> transparent_object_list;
-    void render(unsigned int src_width, unsigned int src_height);
+    void render(unsigned int src_width, unsigned int src_height, float time);
 };
 
 #endif

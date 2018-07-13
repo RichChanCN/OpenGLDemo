@@ -1,6 +1,6 @@
 #include "scene.h"
 
-void Scene::render(unsigned int src_width, unsigned int src_height){
+void Scene::render(unsigned int src_width, unsigned int src_height, float time){
     for (unsigned int i = 0; i < light_list.size(); i++)
     {
         for (unsigned int j = 0; j < shader_list.size(); j++)
@@ -23,10 +23,10 @@ void Scene::render(unsigned int src_width, unsigned int src_height){
 
     for (unsigned int i = 0; i < common_object_list.size(); i++)
     {
-        common_object_list[i]->draw();
+        common_object_list[i]->draw(time);
     }
     for (unsigned int i = 0; i < transparent_object_list.size(); i++)
     {
-        transparent_object_list[i]->draw();
+        transparent_object_list[i]->draw(time);
     }
 }

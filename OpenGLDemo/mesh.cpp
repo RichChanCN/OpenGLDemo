@@ -69,9 +69,21 @@ void Mesh::setupMesh()
     // vertex bone datas
     glEnableVertexAttribArray(3);
     //注意这下面的函数式传int用的
-    glVertexAttribIPointer(3, NUM_BONES_PER_VEREX, GL_INT, sizeof(Vertex), (void*)offsetof(Vertex, bonedata.IDs));
+    glVertexAttribIPointer(3, 4, GL_INT, sizeof(Vertex), (void*)offsetof(Vertex, bonedata[0].IDs));
     glEnableVertexAttribArray(4);
-    glVertexAttribPointer(4, NUM_BONES_PER_VEREX, GL_FLOAT, GL_FALSE, sizeof(Vertex), (void*)offsetof(Vertex, bonedata.Weights));
+    glVertexAttribIPointer(4, 4, GL_INT, sizeof(Vertex), (void*)offsetof(Vertex, bonedata[1].IDs));
+    glEnableVertexAttribArray(5);
+    glVertexAttribIPointer(5, 4, GL_INT, sizeof(Vertex), (void*)offsetof(Vertex, bonedata[2].IDs));
+    glEnableVertexAttribArray(6);
+    glVertexAttribIPointer(6, 4, GL_INT, sizeof(Vertex), (void*)offsetof(Vertex, bonedata[3].IDs));
+    glEnableVertexAttribArray(7);
+    glVertexAttribPointer(7, 4, GL_FLOAT, GL_FALSE, sizeof(Vertex), (void*)offsetof(Vertex, bonedata[0].Weights));
+    glEnableVertexAttribArray(8);
+    glVertexAttribPointer(8, 4, GL_FLOAT, GL_FALSE, sizeof(Vertex), (void*)offsetof(Vertex, bonedata[1].Weights));
+    glEnableVertexAttribArray(9);
+    glVertexAttribPointer(9, 4, GL_FLOAT, GL_FALSE, sizeof(Vertex), (void*)offsetof(Vertex, bonedata[2].Weights));
+    glEnableVertexAttribArray(10);
+    glVertexAttribPointer(10, 4, GL_FLOAT, GL_FALSE, sizeof(Vertex), (void*)offsetof(Vertex, bonedata[3].Weights));
     /*
     // vertex tangent
     glEnableVertexAttribArray(3);

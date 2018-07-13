@@ -13,24 +13,24 @@
 #include <vector>
 #include <map>
 
-#define NUM_BONES_PER_VEREX 4
+#define NUM_BONES_PER_VEREX 16
 
 using namespace std;
 
 struct VertexBoneData
 {
     VertexBoneData(){
-        for (int i = 0; i < NUM_BONES_PER_VEREX; i++)
+        for (int i = 0; i < 4; i++)
         {
             IDs[i] = 100;
             Weights[i] = 0.0f;
         }
     }
-    unsigned int IDs[NUM_BONES_PER_VEREX];
-    float Weights[NUM_BONES_PER_VEREX];
+    unsigned int IDs[4];
+    float Weights[4];
 
     void addBoneData(unsigned id, float w){
-        for (int i = 0; i < NUM_BONES_PER_VEREX; i++)
+        for (int i = 0; i < 4; i++)
         {
             if (IDs[i] == 100){
                 IDs[i] = id;
@@ -54,13 +54,27 @@ struct Vertex {
     // texCoords
     glm::vec2 TexCoords;
     // bone
-    VertexBoneData bonedata;
+    VertexBoneData bonedata[NUM_BONES_PER_VEREX/4];
     /* delete the property for moment
     // tangent
     glm::vec3 Tangent;
     // bitangent
     glm::vec3 Bitangent;
     */
+
+    void addBoneData(unsigned id, float w){
+        for (int i = 0; i < 4; i++)
+        {
+            for (int j = 0; j < 4; j++)
+            {
+                if (bonedata[i].IDs[j] == 100){
+                    bonedata[i].IDs[j] = id;
+                    bonedata[i].Weights[j] = w;
+                    return;
+                }
+            }
+        }
+    }
 };
 
 struct Texture {

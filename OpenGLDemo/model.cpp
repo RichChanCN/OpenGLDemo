@@ -1,12 +1,12 @@
 #include "model.h"
 
 /*  Functions   */
-void Model::Draw(Shader* shader)
+void Model::Draw(Shader* shader, float time)
 {
     if (hasBone){
         vector<glm::mat4> transform;
         transform.resize(bone_infos.size());
-        BoneTransform(1.0f, transform);
+        BoneTransform(time, transform);
         char name[32];
         memset(name, 0, sizeof(name));
         for (size_t i = 0; i < transform.size(); i++)
@@ -136,14 +136,12 @@ Mesh Model::processMesh(aiMesh *mesh, const aiScene *scene)
             else {
                 BoneIndex = bone_mapping[BoneName];
             }
-            if (BoneIndex >= bone_infos.size()){
-                bone_infos.resize(BoneIndex);
-            }
             bone_infos[BoneIndex].BoneOffsetMat4 = mesh->mBones[i]->mOffsetMatrix;
 
             for (unsigned j = 0; j < mesh->mBones[i]->mNumWeights; j++) {
+                unsigned int VertexID = + mesh->mBones[i]->mWeights[j].mVertexId;
                 float Weight = mesh->mBones[i]->mWeights[j].mWeight;
-				vertices[j].bonedata.addBoneData(BoneIndex, Weight);
+                vertices[VertexID].addBoneData(BoneIndex, Weight);
             }
         }
     }

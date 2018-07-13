@@ -32,7 +32,7 @@ public:
         delete(model);
     }
     
-    void draw();
+    void draw(float time);
     void add(GameObject* child);
     void setPosition(glm::vec3 pos);
     glm::vec3 getPosition();
