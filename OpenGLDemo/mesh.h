@@ -105,7 +105,7 @@ public:
 	int boneNum;
     /*  Functions  */
     // constructor
-	Mesh(const Model* m, const aiScene* sc, vector<Vertex> vertices, vector<unsigned int> indices, vector<Texture> textures, bool hasBone = false, int boneNum = 0, Material material = Material()) :scene(sc), model(m)
+	Mesh(const Model* m, const aiScene* sc, vector<Vertex> vertices, vector<unsigned int> indices, vector<Texture> textures, bool hasBone = false, int boneNum = 0, Material material = Material()) : model(m)
     {
         this->vertices = vertices;
         this->indices = indices;
@@ -123,24 +123,9 @@ public:
 private:
     /*  Render data  */
     unsigned int VBO, EBO;
-    const aiScene* scene;
     const Model* model;
-    aiMatrix4x4 globalInverseTransform;
     /*  Functions    */
     // initializes all the buffer objects/arrays
     void setupMesh();
-    //animation
-    void ReadNodeHeirarchy(float AnimationTime, const aiNode* pNode, const aiMatrix4x4& ParentTransform);
-
-    void CalcInterpolatedRotation(aiQuaternion& Out, float AnimationTime, const aiNodeAnim* pNodeAnim);
-    void CalcInterpolatedScaling(aiVector3D& Out, float AnimationTime, const aiNodeAnim* pNodeAnim);
-    void CalcInterpolatedPosition(aiVector3D& Out, float AnimationTime, const aiNodeAnim* pNodeAnim);
-
-    unsigned int FindScaling(float AnimationTime, const aiNodeAnim* pNodeAnim);
-    unsigned int FindRotation(float AnimationTime, const aiNodeAnim* pNodeAnim);
-    unsigned int FindPosition(float AnimationTime, const aiNodeAnim* pNodeAnim);
-
-    const aiNodeAnim* FindNodeAnim(const aiAnimation* pAnimation, const string NodeName);
-    void Mesh::BoneTransform(float TimeInSeconds, vector<glm::mat4>& Transforms);
 };
 #endif

@@ -19,6 +19,8 @@ void Scene::render(unsigned int src_width, unsigned int src_height){
         shader_list[i].setMat4("projection", projection);
         shader_list[i].setVec3("viewPos", camera.Position);
     }
+
+
     for (unsigned int i = 0; i < common_object_list.size(); i++)
     {
         common_object_list[i]->draw();

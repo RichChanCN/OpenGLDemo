@@ -43,6 +43,9 @@ public:
     string directory;
     vector<BoneInfo> bone_infos;
     bool gammaCorrection;
+    bool hasBone;
+    bool hasAnimation;
+    unsigned boneNum;
 
     /*  Functions   */
     // constructor, expects a filepath to a 3D model.
@@ -50,6 +53,9 @@ public:
 		gammaCorrection(gamma), 
 		importer(Assimp::Importer())
     {
+        hasBone = false;
+        hasAnimation = false;
+        boneNum = 0;
 		scene = importer.ReadFile(path, aiProcess_Triangulate | aiProcess_FlipUVs | aiProcess_CalcTangentSpace);
         loadModel(path);
     }
@@ -59,7 +65,8 @@ public:
     
 private:
 	const aiScene*  scene;
-	Assimp::Importer importer;
+    Assimp::Importer importer;
+    aiMatrix4x4 globalInverseTransform;
     /*  Functions   */
     // loads a model with supported ASSIMP extensions from file and stores the resulting meshes in the meshes vector.
     void loadModel(string const &path);
@@ -72,5 +79,19 @@ private:
     // checks all material textures of a given type and loads the textures if they're not loaded yet.
     // the required info is returned as a Texture struct.
     vector<Texture> loadMaterialTextures(aiMaterial *mat, aiTextureType type, string typeName);
+
+    //animation
+    void ReadNodeHeirarchy(float AnimationTime, const aiNode* pNode, const aiMatrix4x4& ParentTransform);
+
+    void CalcInterpolatedRotation(aiQuaternion& Out, float AnimationTime, const aiNodeAnim* pNodeAnim);
+    void CalcInterpolatedScaling(aiVector3D& Out, float AnimationTime, const aiNodeAnim* pNodeAnim);
+    void CalcInterpolatedPosition(aiVector3D& Out, float AnimationTime, const aiNodeAnim* pNodeAnim);
+
+    unsigned int FindScaling(float AnimationTime, const aiNodeAnim* pNodeAnim);
+    unsigned int FindRotation(float AnimationTime, const aiNodeAnim* pNodeAnim);
+    unsigned int FindPosition(float AnimationTime, const aiNodeAnim* pNodeAnim);
+
+    const aiNodeAnim* FindNodeAnim(const aiAnimation* pAnimation, const string NodeName);
+    void BoneTransform(float TimeInSeconds, vector<glm::mat4>& Transforms);
 };
 #endif

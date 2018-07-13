@@ -72,7 +72,8 @@ namespace mymathlib
 	Mat4 r(Mat4 m, glm::vec3 v, float angles);
 	Mat4 rotate(Mat4 m, Quat a);
 
-    glm::mat4 aiMat_cast(const aiMatrix4x4 aimat);
+    glm::mat4 aiMat_col_cast(const aiMatrix4x4 aimat);
+    glm::mat4 aiMat_row_cast(const aiMatrix4x4 aimat);
 }
 
 

@@ -5,7 +5,7 @@
 int main(){
     Game* game = Game::Instance();
     Shader shader("shaders\\load_model_vs.glsl", "shaders\\load_model_fs.glsl");
-    GameObject* nanosuit = new GameObject("assets\\models\\nanosuit\\nanosuit.fbx",&shader);
+    GameObject* nanosuit = new GameObject("assets\\models\\nanosuit\\animation2_with_skin.fbx",&shader);
     game->setCtrlModel(nanosuit);
     game->scene->light_list.push_back(Light(glm::vec3(0.0f, 10.0f, 5.0f), glm::vec3(1.0f, 1.0f, 1.0f)));
     game->scene->common_object_list.push_back(nanosuit);

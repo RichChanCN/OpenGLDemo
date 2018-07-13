@@ -23,7 +23,7 @@ void main()
 	vec4 NormalL;
 	vec4 PosL;
 	if(hasBone){
-
+		//mat4 BoneTransform = mat4(1.0,0.0,0.0,0.0,0.0,1.0,0.0,0.0,0.0,0.0,1.0,0.0,0.0,0.0,0.0,1.0);
 		mat4 BoneTransform = gBones[BoneIDs[0]] * Weights[0];
 		for (int i = 1; i < boneNum; i++){
 			BoneTransform += gBones[BoneIDs[i]] * Weights[i];
