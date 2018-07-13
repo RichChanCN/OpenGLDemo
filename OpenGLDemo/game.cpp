@@ -127,15 +127,15 @@ void Game::ModelCtrl(GLFWwindow *window)
     glm::vec3 scale = instance->ctrl_object->getScale();
     Quat quat = instance->ctrl_object->getQuaternion();
     if (glfwGetKey(window, GLFW_KEY_LEFT) == GLFW_PRESS)
-        instance->ctrl_object->setPosition(glm::vec3(pos.x + deltaTime * 2, pos.y, pos.z));
+        instance->ctrl_object->setPosition(glm::vec3(pos.x + deltaTime * 4, pos.y, pos.z));
     if (glfwGetKey(window, GLFW_KEY_RIGHT) == GLFW_PRESS)
-        instance->ctrl_object->setPosition(glm::vec3(pos.x - deltaTime * 2, pos.y, pos.z));
+        instance->ctrl_object->setPosition(glm::vec3(pos.x - deltaTime * 4, pos.y, pos.z));
     if (glfwGetKey(window, GLFW_KEY_UP) == GLFW_PRESS){
         instance->ctrl_object->getModel()->ChangeAnimation("walk");
-        instance->ctrl_object->setPosition(glm::vec3(pos.x, pos.y, pos.z + deltaTime * 2));
+        instance->ctrl_object->setPosition(glm::vec3(pos.x, pos.y, pos.z + deltaTime * 4));
     }
     if (glfwGetKey(window, GLFW_KEY_DOWN) == GLFW_PRESS)
-        instance->ctrl_object->setPosition(glm::vec3(pos.x, pos.y, pos.z - deltaTime * 2));
+        instance->ctrl_object->setPosition(glm::vec3(pos.x, pos.y, pos.z - deltaTime * 4));
     if (glfwGetKey(window, GLFW_KEY_PAGE_UP) == GLFW_PRESS)
         instance->ctrl_object->setScale(scale + deltaTime / 2);
     if (glfwGetKey(window, GLFW_KEY_PAGE_DOWN) == GLFW_PRESS)
