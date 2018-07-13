@@ -19,6 +19,12 @@ void Model::Draw(Shader* shader, float time)
     for (unsigned int i = 0; i < meshes.size(); i++)
         meshes[i].Draw(shader);
 }
+
+void Model::ChangeAnimation(string name){
+    if (animation_scenes.find(name) != animation_scenes.end())
+        cur_animation = animation_scenes[name];
+}
+
 // loads a model with supported ASSIMP extensions from file and stores the resulting meshes in the meshes vector.
 void Model::loadModel(string const &path)
 {
@@ -33,11 +39,32 @@ void Model::loadModel(string const &path)
         return;
     }
     hasAnimation = scene->HasAnimations();
+    if (hasAnimation){
+        animation_scenes["default"] = scene;
+    }
     // retrieve the directory path of the filepath
     directory = path.substr(0, path.find_last_of('\\'));
 
     // process ASSIMP's root node recursively
     processNode(scene->mRootNode, scene);
+}
+
+// loads a model with supported ASSIMP extensions from file and stores the resulting meshes in the meshes vector.
+void Model::loadAnimation(string const &path, string anim_name)
+{
+    Assimp::Importer* anim_importer = new Assimp::Importer();
+    const aiScene* anim_scene = anim_importer->ReadFile(path, aiProcess_Triangulate | aiProcess_FlipUVs | aiProcess_CalcTangentSpace);
+    // check for errors
+    //if (!anim_scene || anim_scene->mFlags & AI_SCENE_FLAGS_INCOMPLETE || !anim_scene->mRootNode) // if is Not Zero
+    //{
+    //    cout << "ERROR::ASSIMP:: " << importer.GetErrorString() << endl;
+    //    return;
+    //}
+    if (anim_scene->HasAnimations())
+    {
+        anim_importers.push_back(anim_importer);
+        animation_scenes[anim_name] = anim_scene;
+    }
 }
 
 // processes a node in a recursive fashion. Processes each individual mesh located at the node and repeats this process on its children nodes (if any).
@@ -366,7 +393,7 @@ void Model::ReadNodeHeirarchy(float AnimationTime, const aiNode* pNode, const ai
 {
     string NodeName(pNode->mName.data);
 
-    const aiAnimation* pAnimation = scene->mAnimations[0];
+    const aiAnimation* pAnimation = cur_animation->mAnimations[0];
 
     aiMatrix4x4 NodeTransformation(pNode->mTransformation);
 
@@ -411,15 +438,15 @@ void Model::ReadNodeHeirarchy(float AnimationTime, const aiNode* pNode, const ai
 void Model::BoneTransform(float TimeInSeconds, vector<glm::mat4>& Transforms)
 {
     aiMatrix4x4 Identity;
-    if (!scene->HasAnimations())
+    if (!cur_animation->HasAnimations())
         return;
 
-    float TicksPerSecond = scene->mAnimations[0]->mTicksPerSecond != 0 ?
-        scene->mAnimations[0]->mTicksPerSecond : 30.0f;
+    float TicksPerSecond = cur_animation->mAnimations[0]->mTicksPerSecond != 0 ?
+        cur_animation->mAnimations[0]->mTicksPerSecond : 30.0f;
     float TimeInTicks = TimeInSeconds * TicksPerSecond;
-    float AnimationTime = fmod(TimeInTicks, scene->mAnimations[0]->mDuration);
+    float AnimationTime = fmod(TimeInTicks, cur_animation->mAnimations[0]->mDuration);
 
-    ReadNodeHeirarchy(AnimationTime, scene->mRootNode, Identity);
+    ReadNodeHeirarchy(AnimationTime, cur_animation->mRootNode, Identity);
 
 
     for (unsigned i = 0; i < this->bone_infos.size(); i++) {

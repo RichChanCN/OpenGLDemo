@@ -11,6 +11,9 @@ void GameObject::draw(float time){
 
     model->Draw(shader, time);
 }
+Model* GameObject::getModel(){
+    return model;
+}
 /*
 glm::mat4 GameObject::getModelMat(GameObject* root){
     GameObject* p = root;

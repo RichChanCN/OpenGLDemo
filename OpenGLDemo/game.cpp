@@ -130,8 +130,10 @@ void Game::ModelCtrl(GLFWwindow *window)
         instance->ctrl_object->setPosition(glm::vec3(pos.x + deltaTime * 2, pos.y, pos.z));
     if (glfwGetKey(window, GLFW_KEY_RIGHT) == GLFW_PRESS)
         instance->ctrl_object->setPosition(glm::vec3(pos.x - deltaTime * 2, pos.y, pos.z));
-    if (glfwGetKey(window, GLFW_KEY_UP) == GLFW_PRESS)
+    if (glfwGetKey(window, GLFW_KEY_UP) == GLFW_PRESS){
+        instance->ctrl_object->getModel()->ChangeAnimation("walk");
         instance->ctrl_object->setPosition(glm::vec3(pos.x, pos.y, pos.z + deltaTime * 2));
+    }
     if (glfwGetKey(window, GLFW_KEY_DOWN) == GLFW_PRESS)
         instance->ctrl_object->setPosition(glm::vec3(pos.x, pos.y, pos.z - deltaTime * 2));
     if (glfwGetKey(window, GLFW_KEY_PAGE_UP) == GLFW_PRESS)
@@ -142,6 +144,8 @@ void Game::ModelCtrl(GLFWwindow *window)
         instance->ctrl_object->setQuaternion(Quat(quat.x, quat.y, quat.z, quat.w + deltaTime * 2));
     if (glfwGetKey(window, GLFW_KEY_E) == GLFW_PRESS)
         instance->ctrl_object->setQuaternion(Quat(quat.x, quat.y, quat.z, quat.w - deltaTime * 2));
+    if (glfwGetKey(window, GLFW_KEY_TAB) == GLFW_PRESS)
+        instance->ctrl_object->getModel()->ChangeAnimation("anim2");
 }
 
 // glfw: whenever the window size changed (by OS or user resize) this callback function executes

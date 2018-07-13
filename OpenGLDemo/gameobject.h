@@ -40,6 +40,7 @@ public:
     glm::vec3 getScale();
     void setQuaternion(Quat pos);
     Quat getQuaternion();
+    Model* getModel();
 
 private:
     GameObject* parent;

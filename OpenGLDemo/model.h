@@ -58,13 +58,29 @@ public:
         boneNum = 0;
 		scene = importer.ReadFile(path, aiProcess_Triangulate | aiProcess_FlipUVs | aiProcess_CalcTangentSpace);
         loadModel(path);
+        cur_animation = scene;
     }
-
+    ~Model(){
+        for (map<string, const aiScene* >::iterator it = animation_scenes.begin(); it != animation_scenes.end(); it++)
+        {
+            delete(it->second);
+        }
+        for (size_t i = 0; i < anim_importers.size(); i++)
+        {
+            delete(anim_importers[i]);
+        }
+        delete(cur_animation);
+    }
     // draws the model, and thus all its meshes
     void Draw(Shader* shader,float time);
     
+    void loadAnimation(string const &path, string anim_name);
+    void ChangeAnimation(string name);
 private:
-	const aiScene*  scene;
+	const aiScene* scene;
+    const aiScene* cur_animation;
+    map<string, const aiScene* > animation_scenes;
+    vector<Assimp::Importer*> anim_importers;
     Assimp::Importer importer;
     aiMatrix4x4 globalInverseTransform;
     /*  Functions   */
