@@ -1,27 +1,40 @@
 #include "model.h"
 Model::Model(string const &path, Shader* shader, Type tt, bool gamma) :
 GameObject(shader, tt),
-gammaCorrection(gamma),
-importer(Assimp::Importer())
+importer(new Assimp::Importer())
 {
 	hasBone = false;
 	hasAnimation = false;
 	boneNum = 0;
-	scene = importer.ReadFile(path, aiProcess_Triangulate | aiProcess_FlipUVs | aiProcess_CalcTangentSpace);
+	scene = importer->ReadFile(path, aiProcess_Triangulate | aiProcess_FlipUVs | aiProcess_CalcTangentSpace);
 	loadModel(path);
 	cur_animation = scene;
 }
 
 Model::~Model(){
-	for (map<string, const aiScene* >::iterator it = animation_scenes.begin(); it != animation_scenes.end(); it++)
+	for (map<string, Animation* >::iterator it = animations.begin(); it != animations.end(); it++)
 	{
-		delete(it->second);
+		if (it->second != NULL){
+			delete(it->second);
+			it->second = NULL;
+		}
 	}
-	for (size_t i = 0; i < anim_importers.size(); i++)
-	{
-		delete(anim_importers[i]);
+	animations.clear();
+
+	if (cur_animation != NULL){
+		delete(cur_animation);
+		cur_animation = NULL;
 	}
-	delete(cur_animation);
+
+	if (scene != NULL){
+		delete(scene);
+		scene = NULL;
+	}
+
+	if (importer != NULL){
+		delete(importer);
+		importer = NULL;
+	}
 }
 
 void Model::draw(float time){
@@ -53,20 +66,20 @@ void Model::drawModel(float time)
 }
 
 void Model::changeAnimation(string name){
-    if (animation_scenes.find(name) != animation_scenes.end())
-        cur_animation = animation_scenes[name];
+    if (animations.find(name) != animations.end())
+        cur_animation = animations[name]->scene;
 }
 
 void Model::loadModel(string const &path)
 {
     if (!scene || scene->mFlags & AI_SCENE_FLAGS_INCOMPLETE || !scene->mRootNode) // 如果没有mesh
     {
-        cout << "ERROR::ASSIMP:: " << importer.GetErrorString() << endl;
+        cout << "ERROR::ASSIMP:: " << importer->GetErrorString() << endl;
         return;
     }
     hasAnimation = scene->HasAnimations();
     if (hasAnimation){
-        animation_scenes["default"] = scene;
+        animations["default"] = new Animation(importer, scene);
     }
     // retrieve the directory path of the filepath
     directory = path.substr(0, path.find_last_of('\\'));
@@ -83,13 +96,12 @@ void Model::loadAnimation(string const &path, string anim_name)
     //这里不用判空mesh，因为可能只有动作数据
     if (!anim_scene)
     {
-        cout << "ERROR::ASSIMP:: " << importer.GetErrorString() << endl;
+        cout << "ERROR::ASSIMP:: " << importer->GetErrorString() << endl;
         return;
     }
     if (anim_scene->HasAnimations())
     {
-        anim_importers.push_back(anim_importer);
-        animation_scenes[anim_name] = anim_scene;
+		animations[anim_name] = new Animation(anim_importer, anim_scene);
     }
 }
 

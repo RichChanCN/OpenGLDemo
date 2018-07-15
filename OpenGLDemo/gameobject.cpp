@@ -5,7 +5,7 @@ void GameObject::add(GameObject* child){
 void GameObject::draw(float time){
 	return;
 }
-/*
+
 glm::mat4 GameObject::getModelMat(GameObject* root){
     GameObject* p = root;
     if (p->parent == NULL){
@@ -14,7 +14,7 @@ glm::mat4 GameObject::getModelMat(GameObject* root){
 
     return glm::rotate(glm::scale(glm::translate(getModelMat(p->parent), p->local_position), p->scale_rate), p->quaternion.w, p->quaternion.axis());
 }
-*/
+
 mymathlib::Mat4 GameObject::getModelMat1(GameObject* root){
 	GameObject* p = root;
 	if (p->parent == NULL){
@@ -50,4 +50,9 @@ Quat GameObject::getQuaternion(){
 
 Type GameObject::getType(){
 	return type;
+}
+
+glm::vec3 GameObject::getWorldPosition(){
+	glm::mat4 model_mat = getModelMat(this);
+	return glm::vec3(model_mat[3][0], model_mat[3][1], model_mat[3][2]);
 }

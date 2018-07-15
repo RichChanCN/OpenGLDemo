@@ -1,3 +1,6 @@
+/*
+练习用的矩阵计算还有四元素定义库
+*/
 #ifndef MYMATHLIB_H
 #define MYMATHLIB_H
 #include <glm/glm.hpp>
@@ -7,7 +10,7 @@
 #include <assimp/Importer.hpp>
 #include <assimp/scene.h>
 #include <assimp/postprocess.h>
-
+//四元素结构
 struct Quat{
 	Quat(){
 		x = 0.0f;
@@ -52,7 +55,7 @@ namespace mymathlib
 			mat[14] = 0.0f;
 			mat[15] = 1.0f;
 		}
-
+		//转换为glm中的四元素
 		glm::mat4 tomat4(){
 			glm::mat4 ret;
 			for (int i = 0; i < 16; i++)
@@ -66,12 +69,14 @@ namespace mymathlib
 
 	};
 	
+	//举证操作
 	Mat4 operator*(Mat4 lhs, Mat4 rhs);
 	Mat4 translate(Mat4 m, glm::vec3 v);
 	Mat4 scale(Mat4 m, glm::vec3 v);
 	Mat4 r(Mat4 m, glm::vec3 v, float angles);
 	Mat4 rotate(Mat4 m, Quat a);
 
+	//assimp中的矩阵转换为glm中的矩阵，分为行主序和列主序
     glm::mat4 aiMat_col_cast(const aiMatrix4x4 aimat);
     glm::mat4 aiMat_row_cast(const aiMatrix4x4 aimat);
 }

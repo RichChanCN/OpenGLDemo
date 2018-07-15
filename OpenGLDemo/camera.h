@@ -1,3 +1,7 @@
+/*
+Ïà»úÀà
+*/
+
 #ifndef CAMERA_H
 #define CAMERA_H
 #include <vector>

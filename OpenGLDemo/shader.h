@@ -1,3 +1,6 @@
+/*
+着色器类（加载glsl文件，和shader传递数据）
+*/
 #ifndef SHADER_H
 #define SHADER_H
 

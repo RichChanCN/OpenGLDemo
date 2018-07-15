@@ -1,3 +1,6 @@
+/*
+场景中物体的基类，暂时只被模型继承，后面考虑把灯光，相机等都继承此类
+*/
 #ifndef GAMEOBJECT_H
 #define GAMEOBJECT_H
 #include <glm/glm.hpp>
@@ -26,7 +29,10 @@ public:
         shader = ss;
         parent = NULL;
     }
-	virtual ~GameObject(){}
+	virtual ~GameObject(){
+		parent = NULL;
+		shader = NULL;
+	}
     
     virtual void draw(float time);
     void add(GameObject* child);
@@ -37,6 +43,7 @@ public:
     void setQuaternion(Quat pos);
 	Quat getQuaternion();
 	Type getType();
+	glm::vec3 getWorldPosition();
 
 protected:
     GameObject* parent;

@@ -9,14 +9,14 @@ void Game::initWindowEvent(){
 }
 
 void Game::start(){
-	Shader shader("shaders\\load_model_vs.glsl", "shaders\\load_model_fs.glsl");
-	Model* nanosuit = new Model("assets\\models\\nanosuit\\nanosuit2.fbx", &shader);
+	Shader* shader = new Shader("shaders\\load_model_vs.glsl", "shaders\\load_model_fs.glsl");
+	Model* nanosuit = new Model("assets\\models\\nanosuit\\nanosuit2.fbx", shader);
 	nanosuit->loadAnimation("assets\\models\\nanosuit\\animation2_without_skin.fbx", "anim2");
 	nanosuit->loadAnimation("assets\\models\\nanosuit\\Walking_without_skin.fbx", "walk");
 	setCtrlModel(nanosuit);
-	scene->add(Light(glm::vec3(0.0f, 10.0f, 5.0f), glm::vec3(1.0f, 1.0f, 1.0f)));
-	scene->add(nanosuit);
-	scene->add(shader);
+	scene.add(Light(glm::vec3(0.0f, 10.0f, 5.0f), glm::vec3(1.0f, 1.0f, 1.0f)));
+	scene.add(nanosuit);
+	scene.add(shader);
 }
 
 void Game::update(){
@@ -34,17 +34,17 @@ void Game::processInput(GLFWwindow *window)
 		glfwSetWindowShouldClose(window, true);
 
 	if (glfwGetKey(window, GLFW_KEY_W) == GLFW_PRESS)
-		instance->scene->camera.ProcessKeyboard(FORWARD, deltaTime);
+		instance->scene.camera.ProcessKeyboard(FORWARD, deltaTime);
 	if (glfwGetKey(window, GLFW_KEY_S) == GLFW_PRESS)
-		instance->scene->camera.ProcessKeyboard(BACKWARD, deltaTime);
+		instance->scene.camera.ProcessKeyboard(BACKWARD, deltaTime);
 	if (glfwGetKey(window, GLFW_KEY_A) == GLFW_PRESS)
-		instance->scene->camera.ProcessKeyboard(LEFT, deltaTime);
+		instance->scene.camera.ProcessKeyboard(LEFT, deltaTime);
 	if (glfwGetKey(window, GLFW_KEY_D) == GLFW_PRESS)
-		instance->scene->camera.ProcessKeyboard(RIGHT, deltaTime);
+		instance->scene.camera.ProcessKeyboard(RIGHT, deltaTime);
 	if (glfwGetKey(window, GLFW_KEY_Z) == GLFW_PRESS)
-		instance->scene->camera.ProcessKeyboard(UP, deltaTime);
+		instance->scene.camera.ProcessKeyboard(UP, deltaTime);
 	if (glfwGetKey(window, GLFW_KEY_X) == GLFW_PRESS)
-		instance->scene->camera.ProcessKeyboard(DOWN, deltaTime);
+		instance->scene.camera.ProcessKeyboard(DOWN, deltaTime);
 }
 void Game::ModelCtrl(GLFWwindow *window)
 {
@@ -101,12 +101,12 @@ void Game::mouse_callback(GLFWwindow* window, double xpos, double ypos)
 	lastX = xpos;
 	lastY = ypos;
 
-	instance->scene->camera.ProcessMouseMovement(xoffset, yoffset);
+	instance->scene.camera.ProcessMouseMovement(xoffset, yoffset);
 }
 
 // glfw: whenever the mouse scroll wheel scrolls, this callback is called
 // ----------------------------------------------------------------------
 void Game::scroll_callback(GLFWwindow* window, double xoffset, double yoffset)
 {
-	instance->scene->camera.ProcessMouseScroll(yoffset);
+	instance->scene.camera.ProcessMouseScroll(yoffset);
 }

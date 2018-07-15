@@ -1,3 +1,6 @@
+/*
+游戏类，单例，包含窗口和一个场景，还有事件处理和模型控制
+*/
 #ifndef GAME_H
 #define GAME_H
 #include <glad/glad.h>
@@ -10,20 +13,28 @@
 class Game{
 public:
     GLFWwindow* window;//窗口
-    Scene* scene; //场景
+    Scene scene; //场景
     static Game* Instance();//单例模式
     void gameloop();//游戏循环
     void setCtrlModel(Model* go);
-private:
-	Game();
     ~Game(){
         glfwTerminate();
-        delete(scene);
-        delete(window);
-        delete(instance);
     }
 
+	class DeleteGame{
+	public:
+		~DeleteGame(){
+			if (Game::instance){
+				delete Game::instance;
+				Game::instance = NULL;
+			}
+		}
+	};
+private:
+	Game();
+
     static Game *instance;
+	static DeleteGame dg;
 
     static Model* ctrl_object;
     const unsigned int src_width;//窗口长

@@ -1,3 +1,6 @@
+/*
+µ∆π‚¿‡
+*/
 #ifndef LIGHT_H
 #define LIGHT_H
 
@@ -19,7 +22,7 @@ public:
     glm::vec3 diffuse_color;
     glm::vec3 ambient_color;
 
-    void update(Shader shader);
+    void update(Shader* shader);
 };
 
 #endif

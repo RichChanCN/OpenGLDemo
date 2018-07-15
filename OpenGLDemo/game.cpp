@@ -15,7 +15,7 @@ Game::Game() :src_width(1280), src_height(720){
 	firstMouse = true;
 	float lastX = (float)src_width / 2.0;
 	float lastY = (float)src_height / 2.0;
-	scene = new Scene();
+	scene = Scene();
 	window = NULL;
 	ctrl_object = NULL;
 	initWindow();
@@ -91,10 +91,10 @@ void Game::gameloop(){
 		update();
         // render
         // ------
-        glClearColor(0.8f, 0.2f, 0.2f, 1.0f);
+        glClearColor(0.2f, 0.2f, 0.2f, 1.0f);
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-        scene->render(src_width, src_height, lastFrame);
+        scene.render(src_width, src_height, lastFrame);
         // glfw: swap buffers and poll IO events (keys pressed/released, mouse moved etc.)
         // -------------------------------------------------------------------------------
         glfwSwapBuffers(window);

@@ -1,3 +1,6 @@
+/*
+模型类，继承于gameobject，从文件中加载模型数据信息，包含多个mesh，材质，贴图，骨骼，动画等，是控制的基本单元
+*/
 #ifndef MODEL_H
 #define MODEL_H
 
@@ -22,8 +25,24 @@
 #include <vector>
 using namespace std;
 
-struct Animation {
-    string name;
+//骨骼动画结构
+struct Animation{
+	Animation(){
+		importer = NULL;
+		scene = NULL;
+	}
+	Animation(Assimp::Importer* ip, const aiScene* sc){
+		importer = ip;
+		scene = sc;
+	}
+	~Animation(){
+		delete scene;
+		scene = NULL;
+		delete importer;
+		scene = NULL;
+	}
+	Assimp::Importer* importer;
+	const aiScene* scene;
 };
 
 static unsigned int TextureFromFile(const char *path, const string &directory, bool gamma = false);
@@ -31,32 +50,34 @@ static unsigned int TextureFromFile(const char *path, const string &directory, b
 class Model : public GameObject
 {
 public:
+	Model(string const &path, Shader* shader, Type tt = COMMON_OBJECT, bool gamma = false);
+	~Model();
+
+    string directory;//模型文件所在目录
     vector<Texture> textures_loaded;  //保存已经加载的贴图，避免重复加载
-    vector<Mesh> meshes;
-    map<string, unsigned> bone_mapping;
-    vector<Animation *> animations;
-    string directory;
-    vector<BoneInfo> bone_infos;
-    bool gammaCorrection;
+    vector<Mesh> meshes;//该模型包含的网格数组
+    map<string, unsigned> bone_mapping;//骨骼名称和索引的映射
+    vector<BoneInfo> bone_infos;//骨骼信息的数组，索引通过上面的map和骨骼名称对应
     bool hasBone;
     bool hasAnimation;
     unsigned boneNum;
 
-	Model(string const &path, Shader* shader, Type tt = COMMON_OBJECT, bool gamma = false);
-	~Model();
+	//从gameobject继承的绘制虚函数
 	virtual void draw(float time);
     
+	//加载动画文件
     void loadAnimation(string const &path, string anim_name);
+	//切换动画
     void changeAnimation(string name);
 private:
 	const aiScene* scene;
+    Assimp::Importer* importer;
     const aiScene* cur_animation;
-    map<string, const aiScene* > animation_scenes;
-    vector<Assimp::Importer*> anim_importers;
-    Assimp::Importer importer;
+	map<string, Animation*> animations;
     aiMatrix4x4 globalInverseTransform;
 
     /*  Functions   */
+	//绘制模型，虚函数draw内部调用它
     void drawModel(float time);
     // loads a model with supported ASSIMP extensions from file and stores the resulting meshes in the meshes vector.
     void loadModel(string const &path);

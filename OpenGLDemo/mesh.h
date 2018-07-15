@@ -1,3 +1,6 @@
+/*
+网格类（绘制的基本单元），每个网格对应一个VAO
+*/
 #ifndef MESH_H
 #define MESH_H
 
@@ -67,13 +70,13 @@ struct Vertex {
         }
     }
 };
-
+//贴图数据
 struct Texture {
     unsigned int id;
     string type;
     string path;
 };
-
+//数值材质信息结构
 struct Material{
     Material(){
         ambient = glm::vec3(0.2, 0.2, 0.2);
@@ -119,6 +122,10 @@ public:
 
         setupMesh();
     }
+
+	~Mesh(){
+		model = NULL;
+	}
 
 	//渲染mesh
     void Draw(Shader* shader);
