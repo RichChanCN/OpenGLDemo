@@ -1,29 +1,34 @@
 #include "mesh.h"
+#include "model.h"
 // render the mesh
-void Mesh::Draw(Shader shader)
+void Mesh::Draw(Shader* shader)
 {
     for (unsigned int i = 0; i < textures.size(); i++)
     {
         glActiveTexture(GL_TEXTURE0 + i); // active proper texture unit before binding
         string name = textures[i].type;
         if (name == "texture_ambient")
-            shader.setBool("hasAmbientTex", true);
+            shader->setBool("hasAmbientTex", true);
         if (name == "texture_diffuse")
-            shader.setBool("hasDiffuseTex", true);
+            shader->setBool("hasDiffuseTex", true);
         if (name == "texture_specular")
-            shader.setBool("hasSpecularTex", true);
+            shader->setBool("hasSpecularTex", true);
         if (name == "texture_normal")
-            shader.setBool("hasNormalTex", true);
+            shader->setBool("hasNormalTex", true);
         // now set the sampler to the correct texture unit
-        glUniform1i(glGetUniformLocation(shader.ID, ("tex_material." + name).c_str()), i);
+        glUniform1i(glGetUniformLocation(shader->ID, ("tex_material." + name).c_str()), i);
         // and finally bind the texture
         glBindTexture(GL_TEXTURE_2D, textures[i].id);
     }
-    shader.setVec3("material.ambient",material.ambient);
-    shader.setVec3("material.diffuse", material.diffuse);
-    shader.setVec3("material.specular", material.specular);
-    shader.setFloat("tex_material.shininess", 32.0);
-    shader.setFloat("material.shininess", 32.0);
+    shader->setVec3("material.ambient", material.ambient);
+    shader->setVec3("material.diffuse", material.diffuse);
+    shader->setVec3("material.specular", material.specular);
+    shader->setFloat("tex_material.shininess", 32.0);
+    shader->setFloat("material.shininess", 32.0);
+
+	shader->setBool("hasBone", hasBone);
+	shader->setInt("boneNum", boneNum);
+
     // draw mesh
     glBindVertexArray(VAO);
     glDrawElements(GL_TRIANGLES, indices.size(), GL_UNSIGNED_INT, 0);
@@ -61,12 +66,31 @@ void Mesh::setupMesh()
     // vertex texture coords
     glEnableVertexAttribArray(2);
     glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, sizeof(Vertex), (void*)offsetof(Vertex, TexCoords));
+    // vertex bone datas
+    glEnableVertexAttribArray(3);
+    //注意这下面的函数式传int用的
+    glVertexAttribIPointer(3, 4, GL_INT, sizeof(Vertex), (void*)offsetof(Vertex, bonedata[0].IDs));
+    glEnableVertexAttribArray(4);
+    glVertexAttribIPointer(4, 4, GL_INT, sizeof(Vertex), (void*)offsetof(Vertex, bonedata[1].IDs));
+    glEnableVertexAttribArray(5);
+    glVertexAttribIPointer(5, 4, GL_INT, sizeof(Vertex), (void*)offsetof(Vertex, bonedata[2].IDs));
+    glEnableVertexAttribArray(6);
+    glVertexAttribIPointer(6, 4, GL_INT, sizeof(Vertex), (void*)offsetof(Vertex, bonedata[3].IDs));
+    glEnableVertexAttribArray(7);
+    glVertexAttribPointer(7, 4, GL_FLOAT, GL_FALSE, sizeof(Vertex), (void*)offsetof(Vertex, bonedata[0].Weights));
+    glEnableVertexAttribArray(8);
+    glVertexAttribPointer(8, 4, GL_FLOAT, GL_FALSE, sizeof(Vertex), (void*)offsetof(Vertex, bonedata[1].Weights));
+    glEnableVertexAttribArray(9);
+    glVertexAttribPointer(9, 4, GL_FLOAT, GL_FALSE, sizeof(Vertex), (void*)offsetof(Vertex, bonedata[2].Weights));
+    glEnableVertexAttribArray(10);
+    glVertexAttribPointer(10, 4, GL_FLOAT, GL_FALSE, sizeof(Vertex), (void*)offsetof(Vertex, bonedata[3].Weights));
+    /*
     // vertex tangent
     glEnableVertexAttribArray(3);
     glVertexAttribPointer(3, 3, GL_FLOAT, GL_FALSE, sizeof(Vertex), (void*)offsetof(Vertex, Tangent));
     // vertex bitangent
     glEnableVertexAttribArray(4);
     glVertexAttribPointer(4, 3, GL_FLOAT, GL_FALSE, sizeof(Vertex), (void*)offsetof(Vertex, Bitangent));
-
+    */
     glBindVertexArray(0);
 }
