@@ -12,6 +12,7 @@
 #include "stb_image.h"
 #include "mesh.h"
 #include "shader.h"
+#include "gameobject.h"
 
 #include <string>
 #include <fstream>
@@ -21,22 +22,16 @@
 #include <vector>
 using namespace std;
 
-struct Frame {
-    vector <Mesh*> meshes;
-};
-
 struct Animation {
     string name;
-    vector <Frame*> frames;
 };
 
 static unsigned int TextureFromFile(const char *path, const string &directory, bool gamma = false);
 
-class Model 
+class Model : public GameObject
 {
 public:
-    /*  Model Data */
-    vector<Texture> textures_loaded;	// stores all the textures loaded so far, optimization to make sure textures aren't loaded more than once.
+    vector<Texture> textures_loaded;  //保存已经加载的贴图，避免重复加载
     vector<Mesh> meshes;
     map<string, unsigned> bone_mapping;
     vector<Animation *> animations;
@@ -47,35 +42,12 @@ public:
     bool hasAnimation;
     unsigned boneNum;
 
-    /*  Functions   */
-    // constructor, expects a filepath to a 3D model.
-	Model(string const &path, bool gamma = false) :
-		gammaCorrection(gamma), 
-		importer(Assimp::Importer())
-    {
-        hasBone = false;
-        hasAnimation = false;
-        boneNum = 0;
-		scene = importer.ReadFile(path, aiProcess_Triangulate | aiProcess_FlipUVs | aiProcess_CalcTangentSpace);
-        loadModel(path);
-        cur_animation = scene;
-    }
-    ~Model(){
-        for (map<string, const aiScene* >::iterator it = animation_scenes.begin(); it != animation_scenes.end(); it++)
-        {
-            delete(it->second);
-        }
-        for (size_t i = 0; i < anim_importers.size(); i++)
-        {
-            delete(anim_importers[i]);
-        }
-        delete(cur_animation);
-    }
-    // draws the model, and thus all its meshes
-    void Draw(Shader* shader,float time);
+	Model(string const &path, Shader* shader, Type tt = COMMON_OBJECT, bool gamma = false);
+	~Model();
+	virtual void draw(float time);
     
     void loadAnimation(string const &path, string anim_name);
-    void ChangeAnimation(string name);
+    void changeAnimation(string name);
 private:
 	const aiScene* scene;
     const aiScene* cur_animation;
@@ -83,31 +55,31 @@ private:
     vector<Assimp::Importer*> anim_importers;
     Assimp::Importer importer;
     aiMatrix4x4 globalInverseTransform;
+
     /*  Functions   */
+    void drawModel(float time);
     // loads a model with supported ASSIMP extensions from file and stores the resulting meshes in the meshes vector.
     void loadModel(string const &path);
 
     // processes a node in a recursive fashion. Processes each individual mesh located at the node and repeats this process on its children nodes (if any).
     void processNode(aiNode *node, const aiScene *scene);
-
     Mesh processMesh(aiMesh *mesh, const aiScene *scene);
 
-    // checks all material textures of a given type and loads the textures if they're not loaded yet.
-    // the required info is returned as a Texture struct.
+    //加载贴图，同时判断是否已经被加载
     vector<Texture> loadMaterialTextures(aiMaterial *mat, aiTextureType type, string typeName);
 
-    //animation
+    //骨骼动画
+    const aiNodeAnim* FindNodeAnim(const aiAnimation* pAnimation, const string NodeName);
+    void BoneTransform(float TimeInSeconds, vector<glm::mat4>& Transforms);
     void ReadNodeHeirarchy(float AnimationTime, const aiNode* pNode, const aiMatrix4x4& ParentTransform);
-
+	//找到对应时间点的各维度信息
+    unsigned int FindScaling(float AnimationTime, const aiNodeAnim* pNodeAnim);
+    unsigned int FindRotation(float AnimationTime, const aiNodeAnim* pNodeAnim);
+    unsigned int FindPosition(float AnimationTime, const aiNodeAnim* pNodeAnim);
+	//计算各个维度的插值
     void CalcInterpolatedRotation(aiQuaternion& Out, float AnimationTime, const aiNodeAnim* pNodeAnim);
     void CalcInterpolatedScaling(aiVector3D& Out, float AnimationTime, const aiNodeAnim* pNodeAnim);
     void CalcInterpolatedPosition(aiVector3D& Out, float AnimationTime, const aiNodeAnim* pNodeAnim);
 
-    unsigned int FindScaling(float AnimationTime, const aiNodeAnim* pNodeAnim);
-    unsigned int FindRotation(float AnimationTime, const aiNodeAnim* pNodeAnim);
-    unsigned int FindPosition(float AnimationTime, const aiNodeAnim* pNodeAnim);
-
-    const aiNodeAnim* FindNodeAnim(const aiAnimation* pAnimation, const string NodeName);
-    void BoneTransform(float TimeInSeconds, vector<glm::mat4>& Transforms);
 };
 #endif

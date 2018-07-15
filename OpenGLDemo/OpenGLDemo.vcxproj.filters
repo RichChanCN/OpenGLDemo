@@ -50,9 +50,6 @@
     <ClCompile Include="glad.c">
       <Filter>源文件</Filter>
     </ClCompile>
-    <ClCompile Include="main.cpp">
-      <Filter>源文件</Filter>
-    </ClCompile>
     <ClCompile Include="model.cpp">
       <Filter>源文件</Filter>
     </ClCompile>
@@ -74,10 +71,13 @@
     <ClCompile Include="light.cpp">
       <Filter>源文件</Filter>
     </ClCompile>
-    <ClCompile Include="demomain.cpp">
+    <ClCompile Include="mymathlib.cpp">
       <Filter>源文件</Filter>
     </ClCompile>
-    <ClCompile Include="mymathlib.cpp">
+    <ClCompile Include="game_user.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="main.cpp">
       <Filter>源文件</Filter>
     </ClCompile>
   </ItemGroup>

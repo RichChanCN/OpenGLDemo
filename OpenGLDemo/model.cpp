@@ -1,7 +1,39 @@
 #include "model.h"
+Model::Model(string const &path, Shader* shader, Type tt, bool gamma) :
+GameObject(shader, tt),
+gammaCorrection(gamma),
+importer(Assimp::Importer())
+{
+	hasBone = false;
+	hasAnimation = false;
+	boneNum = 0;
+	scene = importer.ReadFile(path, aiProcess_Triangulate | aiProcess_FlipUVs | aiProcess_CalcTangentSpace);
+	loadModel(path);
+	cur_animation = scene;
+}
 
-/*  Functions   */
-void Model::Draw(Shader* shader, float time)
+Model::~Model(){
+	for (map<string, const aiScene* >::iterator it = animation_scenes.begin(); it != animation_scenes.end(); it++)
+	{
+		delete(it->second);
+	}
+	for (size_t i = 0; i < anim_importers.size(); i++)
+	{
+		delete(anim_importers[i]);
+	}
+	delete(cur_animation);
+}
+
+void Model::draw(float time){
+	if (type == EMPTY || shader == NULL)
+		return;
+	glm::mat4 model_mat = getModelMat1(this).tomat4();
+	shader->setMat4("model", model_mat);
+
+	drawModel(time);
+}
+
+void Model::drawModel(float time)
 {
     if (hasBone){
         vector<glm::mat4> transform;
@@ -20,20 +52,14 @@ void Model::Draw(Shader* shader, float time)
         meshes[i].Draw(shader);
 }
 
-void Model::ChangeAnimation(string name){
+void Model::changeAnimation(string name){
     if (animation_scenes.find(name) != animation_scenes.end())
         cur_animation = animation_scenes[name];
 }
 
-// loads a model with supported ASSIMP extensions from file and stores the resulting meshes in the meshes vector.
 void Model::loadModel(string const &path)
 {
-    // read file via ASSIMP
- //   Assimp::Importer importer;
-	//const aiScene*  scene = importer.ReadFile(path, aiProcess_Triangulate | aiProcess_FlipUVs | aiProcess_CalcTangentSpace);
-
-    // check for errors
-    if (!scene || scene->mFlags & AI_SCENE_FLAGS_INCOMPLETE || !scene->mRootNode) // if is Not Zero
+    if (!scene || scene->mFlags & AI_SCENE_FLAGS_INCOMPLETE || !scene->mRootNode) // 如果没有mesh
     {
         cout << "ERROR::ASSIMP:: " << importer.GetErrorString() << endl;
         return;
@@ -54,12 +80,12 @@ void Model::loadAnimation(string const &path, string anim_name)
 {
     Assimp::Importer* anim_importer = new Assimp::Importer();
     const aiScene* anim_scene = anim_importer->ReadFile(path, aiProcess_Triangulate | aiProcess_FlipUVs | aiProcess_CalcTangentSpace);
-    // check for errors
-    //if (!anim_scene || anim_scene->mFlags & AI_SCENE_FLAGS_INCOMPLETE || !anim_scene->mRootNode) // if is Not Zero
-    //{
-    //    cout << "ERROR::ASSIMP:: " << importer.GetErrorString() << endl;
-    //    return;
-    //}
+    //这里不用判空mesh，因为可能只有动作数据
+    if (!anim_scene)
+    {
+        cout << "ERROR::ASSIMP:: " << importer.GetErrorString() << endl;
+        return;
+    }
     if (anim_scene->HasAnimations())
     {
         anim_importers.push_back(anim_importer);
@@ -97,7 +123,7 @@ Mesh Model::processMesh(aiMesh *mesh, const aiScene *scene)
     //为了防止向量多次自动扩容影响加载速度
     vertices.reserve(mesh->mNumVertices);
 
-    // Walk through each of the mesh's vertices
+    //遍历mesh的所有顶点
     for (unsigned int i = 0; i < mesh->mNumVertices; i++)
     {
         Vertex vertex;
@@ -124,36 +150,18 @@ Mesh Model::processMesh(aiMesh *mesh, const aiScene *scene)
         }
         else
             vertex.TexCoords = glm::vec2(0.0f, 0.0f);
-        /* delete the property for moment
-        if (mesh->HasTangentsAndBitangents()){
-            // tangent
-            if (mesh->mTangents)
-            {
-                vector.x = mesh->mTangents[i].x;
-                vector.y = mesh->mTangents[i].y;
-                vector.z = mesh->mTangents[i].z;
-                vertex.Tangent = vector;
-            }
-            // bitangent
-            if (mesh->mBitangents)
-            {
-                vector.x = mesh->mBitangents[i].x;
-                vector.y = mesh->mBitangents[i].y;
-                vector.z = mesh->mBitangents[i].z;
-                vertex.Bitangent = vector;
-            }
-        }
-        */
+
         vertices.push_back(vertex);
     }
-    //bones
+    //骨骼信息
     if (mesh->HasBones()){
         mesh_hasBone = hasBone = true;
         unsigned BoneIndex;
         for (unsigned int i = 0; i < mesh->mNumBones; i++) {
+			//从骨骼数组中获取骨骼名字
             string BoneName(mesh->mBones[i]->mName.data);
-
-            if (bone_mapping.find(BoneName) == bone_mapping.end()) {
+			//从已有的map中查找
+            if (bone_mapping.find(BoneName) == bone_mapping.end()) {//没有的话再map中加入这个骨骼，并赋予一个index
                 BoneIndex = boneNum;
                 boneNum++;
                 BoneInfo binfo;
@@ -163,8 +171,10 @@ Mesh Model::processMesh(aiMesh *mesh, const aiScene *scene)
             else {
                 BoneIndex = bone_mapping[BoneName];
             }
+			//以index为索引创建一个骨骼信息的vector，记录骨骼的偏移矩阵
             bone_infos[BoneIndex].BoneOffsetMat4 = mesh->mBones[i]->mOffsetMatrix;
 
+			//为每个顶点绑上骨骼信息
             for (unsigned j = 0; j < mesh->mBones[i]->mNumWeights; j++) {
                 unsigned int VertexID = + mesh->mBones[i]->mWeights[j].mVertexId;
                 float Weight = mesh->mBones[i]->mWeights[j].mWeight;
@@ -193,12 +203,7 @@ Mesh Model::processMesh(aiMesh *mesh, const aiScene *scene)
     aiColor3D spec(0.0f, 0.0f, 0.0f);
     material->Get(AI_MATKEY_COLOR_DIFFUSE, spec);
     mat.specular = glm::vec3(spec.r, spec.g, spec.b);
-    // we assume a convention for sampler names in the shaders. Each diffuse texture should be named
-    // as 'texture_diffuseN' where N is a sequential number ranging from 1 to MAX_SAMPLER_NUMBER. 
-    // Same applies to other texture as the following list summarizes:
-    // diffuse: texture_diffuseN
-    // specular: texture_specularN
-    // normal: texture_normalN
+
     // 1. ambient maps
     vector<Texture> ambientMaps = loadMaterialTextures(material, aiTextureType_AMBIENT, "texture_ambient");
     textures.insert(textures.end(), ambientMaps.begin(), ambientMaps.end());
@@ -209,18 +214,16 @@ Mesh Model::processMesh(aiMesh *mesh, const aiScene *scene)
     vector<Texture> specularMaps = loadMaterialTextures(material, aiTextureType_SPECULAR, "texture_specular");
     textures.insert(textures.end(), specularMaps.begin(), specularMaps.end());
     // 4. normal maps
-    std::vector<Texture> normalMaps = loadMaterialTextures(material, aiTextureType_HEIGHT, "texture_normal");
+    std::vector<Texture> normalMaps = loadMaterialTextures(material, aiTextureType_NORMALS, "texture_normal");
     textures.insert(textures.end(), normalMaps.begin(), normalMaps.end());
     // 5. height maps
-    std::vector<Texture> heightMaps = loadMaterialTextures(material, aiTextureType_AMBIENT, "texture_height");
+    std::vector<Texture> heightMaps = loadMaterialTextures(material, aiTextureType_HEIGHT, "texture_height");
     textures.insert(textures.end(), heightMaps.begin(), heightMaps.end());
 
     // return a mesh object created from the extracted mesh data
     return Mesh(this, scene, vertices, indices, textures, mesh_hasBone, mesh->mNumBones, mat);
 }
 
-// checks all material textures of a given type and loads the textures if they're not loaded yet.
-// the required info is returned as a Texture struct.
 vector<Texture> Model::loadMaterialTextures(aiMaterial *mat, aiTextureType type, string typeName)
 {
     vector<Texture> textures;
@@ -228,25 +231,25 @@ vector<Texture> Model::loadMaterialTextures(aiMaterial *mat, aiTextureType type,
     {
         aiString str;
         mat->GetTexture(type, i, &str);
-        // check if texture was loaded before and if so, continue to next iteration: skip loading a new texture
+
         bool skip = false;
         for (unsigned int j = 0; j < textures_loaded.size(); j++)
         {
             if (std::strcmp(textures_loaded[j].path.data(), str.C_Str()) == 0)
             {
                 textures.push_back(textures_loaded[j]);
-                skip = true; // a texture with the same filepath has already been loaded, continue to next one. (optimization)
+                skip = true;
                 break;
             }
         }
         if (!skip)
-        {   // if texture hasn't been loaded already, load it
+        {   
             Texture texture;
             texture.id = TextureFromFile(str.C_Str(), this->directory);
             texture.type = typeName;
             texture.path = str.C_Str();
             textures.push_back(texture);
-            textures_loaded.push_back(texture);  // store it as texture loaded for entire model, to ensure we won't unnecesery load duplicate textures.
+            textures_loaded.push_back(texture);
         }
     }
     return textures;
@@ -333,7 +336,7 @@ unsigned int Model::FindPosition(float AnimationTime, const aiNodeAnim* pNodeAni
 
 void Model::CalcInterpolatedRotation(aiQuaternion& Out, float AnimationTime, const aiNodeAnim* pNodeAnim)
 {
-    // we need at least two values to interpolate...
+    //至少两个值才能计算差值，一个值就直接返回
     if (pNodeAnim->mNumRotationKeys == 1) {
         Out = pNodeAnim->mRotationKeys[0].mValue;
         return;

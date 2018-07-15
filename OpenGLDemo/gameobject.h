@@ -1,10 +1,9 @@
 #ifndef GAMEOBJECT_H
 #define GAMEOBJECT_H
-#include <glad/glad.h>
 #include <glm/glm.hpp>
 #include <glm/gtc/matrix_transform.hpp>
+#include <string>
 #include "shader.h"
-#include "model.h"
 #include "mymathlib.h"
 
 enum Type{
@@ -18,37 +17,33 @@ public:
     GameObject():quaternion(Quat()), type(EMPTY){
         local_position = glm::vec3(0.0f, 0.0f, 0.0f);
         scale_rate = glm::vec3(1.0f, 1.0f, 1.0f);
-        model = NULL;
         shader = NULL;
         parent = NULL;
     }
-    GameObject(string const &path, Shader* ss, Type tt = COMMON_OBJECT) :model(new Model(path)), quaternion(Quat()), type(tt){
+    GameObject(Shader* ss, Type tt = EMPTY) : quaternion(Quat()), type(tt){
         local_position = glm::vec3(0.0f, 0.0f, 0.0f);
         scale_rate = glm::vec3(1.0f, 1.0f, 1.0f);
         shader = ss;
         parent = NULL;
     }
-    ~GameObject(){
-        delete(model);
-    }
+	virtual ~GameObject(){}
     
-    void draw(float time);
+    virtual void draw(float time);
     void add(GameObject* child);
     void setPosition(glm::vec3 pos);
     glm::vec3 getPosition();
     void setScale(glm::vec3 pos);
     glm::vec3 getScale();
     void setQuaternion(Quat pos);
-    Quat getQuaternion();
-    Model* getModel();
+	Quat getQuaternion();
+	Type getType();
 
-private:
+protected:
     GameObject* parent;
     glm::vec3 local_position;
     glm::vec3 scale_rate;
     Quat quaternion;
     Type type;
-    Model* model;
     Shader* shader;
 	glm::mat4 getModelMat(GameObject* root);
 	mymathlib::Mat4 getModelMat1(GameObject* root);

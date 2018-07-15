@@ -30,3 +30,26 @@ void Scene::render(unsigned int src_width, unsigned int src_height, float time){
         transparent_object_list[i]->draw(time);
     }
 }
+void Scene::add(GameObject* go){
+	switch (go->getType())
+	{
+	case COMMON_OBJECT:
+		common_object_list.push_back(go);
+		break;
+	case BLEND_OBJECT:
+		transparent_object_list.push_back(go);
+		break;
+	case EMPTY:
+		empty_object_list.push_back(go);
+		break;
+	default:
+		break;
+	}
+}
+void Scene::add(Shader shader){
+	shader_list.push_back(shader);
+}
+
+void Scene::add(Light light){
+	light_list.push_back(light);
+}

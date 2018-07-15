@@ -97,12 +97,12 @@
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="camera.cpp" />
-    <ClCompile Include="demomain.cpp" />
+    <ClCompile Include="main.cpp" />
     <ClCompile Include="game.cpp" />
     <ClCompile Include="gameobject.cpp" />
+    <ClCompile Include="game_user.cpp" />
     <ClCompile Include="glad.c" />
     <ClCompile Include="light.cpp" />
-    <ClCompile Include="main.cpp" />
     <ClCompile Include="mesh.cpp" />
     <ClCompile Include="model.cpp" />
     <ClCompile Include="mymathlib.cpp" />

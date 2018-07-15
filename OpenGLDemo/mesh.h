@@ -16,7 +16,7 @@
 #define NUM_BONES_PER_VEREX 16
 
 using namespace std;
-
+//顶点数据结构，由于glapi限制，数组大小四个一组
 struct VertexBoneData
 {
     VertexBoneData(){
@@ -40,27 +40,18 @@ struct VertexBoneData
         }
     }
 };
-
+//每个顶点的骨骼信息
 struct BoneInfo{
     aiMatrix4x4 BoneOffsetMat4;
     aiMatrix4x4 FinalTransformation;
 };
 
 struct Vertex {
-    // position
     glm::vec3 Position;
-    // normal
     glm::vec3 Normal;
-    // texCoords
     glm::vec2 TexCoords;
     // bone
     VertexBoneData bonedata[NUM_BONES_PER_VEREX/4];
-    /* delete the property for moment
-    // tangent
-    glm::vec3 Tangent;
-    // bitangent
-    glm::vec3 Bitangent;
-    */
 
     void addBoneData(unsigned id, float w){
         for (int i = 0; i < 4; i++)
@@ -104,12 +95,11 @@ struct Material{
 
     float shininess;
 };
-
+//为了在mesh中保留一个model对象指针，头文件不循环包括所以预先声明
 class Model;
 
 class Mesh {
 public:
-    /*  Mesh Data  */
     vector<Vertex> vertices;
     vector<unsigned int> indices;
     vector<Texture> textures;
@@ -117,8 +107,7 @@ public:
     unsigned int VAO;
 	bool hasBone;
 	int boneNum;
-    /*  Functions  */
-    // constructor
+
 	Mesh(const Model* m, const aiScene* sc, vector<Vertex> vertices, vector<unsigned int> indices, vector<Texture> textures, bool hasBone = false, int boneNum = 0, Material material = Material()) : model(m)
     {
         this->vertices = vertices;
@@ -127,19 +116,17 @@ public:
         this->material = material;
 		this->hasBone = hasBone;
 		this->boneNum = boneNum;
-        // now that we have all the required data, set the vertex buffers and its attribute pointers.
+
         setupMesh();
     }
 
-    // render the mesh
+	//渲染mesh
     void Draw(Shader* shader);
 
 private:
-    /*  Render data  */
     unsigned int VBO, EBO;
-    const Model* model;
-    /*  Functions    */
-    // initializes all the buffer objects/arrays
+	const Model* model;
+	// 初始化顶点数组缓存
     void setupMesh();
 };
 #endif
