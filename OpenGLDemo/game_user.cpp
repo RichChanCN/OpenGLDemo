@@ -15,6 +15,7 @@ void Game::start(){
 	Model* nanosuit = new Model("assets\\models\\nanosuit\\nanosuit2.fbx", shader);
 	nanosuit->loadAnimation("assets\\models\\nanosuit\\animation2_without_skin.fbx", "anim2");
 	nanosuit->loadAnimation("assets\\models\\nanosuit\\Walking_without_skin.fbx", "walk");
+    nanosuit->setEffectType(BORDER);
 	scene.add(nanosuit);
 	setCtrlModel(nanosuit);
     
