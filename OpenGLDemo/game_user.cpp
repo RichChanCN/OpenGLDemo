@@ -10,16 +10,43 @@ void Game::initWindowEvent(){
 
 void Game::start(){
 	Shader* shader = new Shader("shaders\\load_model_vs.glsl", "shaders\\load_model_fs.glsl");
+    Shader* blend_shader = new Shader("shaders\\load_model_vs.glsl", "shaders\\blend_fs.glsl");
+
 	Model* nanosuit = new Model("assets\\models\\nanosuit\\nanosuit2.fbx", shader);
 	nanosuit->loadAnimation("assets\\models\\nanosuit\\animation2_without_skin.fbx", "anim2");
 	nanosuit->loadAnimation("assets\\models\\nanosuit\\Walking_without_skin.fbx", "walk");
-	setCtrlModel(nanosuit);
-	scene.add(Light(glm::vec3(0.0f, 10.0f, 5.0f), glm::vec3(1.0f, 1.0f, 1.0f)));
 	scene.add(nanosuit);
+	setCtrlModel(nanosuit);
+    
+    Model* plane = Model::plane(shader);
+    plane->setScale(glm::vec3(2.0));
+    scene.add(plane);
+
+    std::vector<glm::vec3> vegetation;
+    vegetation.push_back(glm::vec3(-1.5f, 1.0f, -5.0f));
+    vegetation.push_back(glm::vec3(4.5f, 1.0f, -0.0f));
+    vegetation.push_back(glm::vec3(0.0f, 1.0f, -7.0f));
+    vegetation.push_back(glm::vec3(-3.0f, 1.0f, -2.0f));
+    vegetation.push_back(glm::vec3(0.5f, 1.0f, -6.0f));
+    for (int i = 0; i < 5; i++)
+    {
+        Model* vertical_planes = Model::vertical_plane(blend_shader);
+        vertical_planes->setScale(glm::vec3(2.0));
+        vertical_planes->setPosition(vegetation[i]);
+        scene.add(vertical_planes);
+    }
+
+    scene.add(Light(glm::vec3(0.0f, 10.0f, 5.0f), glm::vec3(1.0f, 1.0f, 1.0f)));
 	scene.add(shader);
 }
 
 void Game::update(){
+
+    for (int i = 0; i < 5; i++)
+    {
+        glm::vec3 pos = scene.transparent_object_list[i]->getPosition();
+        scene.transparent_object_list[i]->setPosition(glm::vec3(sin(lastFrame + i) * 5, pos.y, pos.z));
+    }
 
 	processInput(window);
 	ModelCtrl(window);

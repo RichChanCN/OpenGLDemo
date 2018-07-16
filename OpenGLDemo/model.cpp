@@ -1,5 +1,5 @@
 #include "model.h"
-Model::Model(string const &path, Shader* shader, Type tt, bool gamma) :
+Model::Model(string const &path, Shader* shader, Type tt) :
 GameObject(shader, tt),
 importer(new Assimp::Importer())
 {
@@ -9,6 +9,17 @@ importer(new Assimp::Importer())
 	scene = importer->ReadFile(path, aiProcess_Triangulate | aiProcess_FlipUVs | aiProcess_CalcTangentSpace);
 	loadModel(path);
 	cur_animation = scene;
+}
+
+Model::Model(Shader* shader, Type tt):
+GameObject(shader, tt)
+{
+    importer = NULL;
+    scene = NULL;
+    cur_animation = NULL;
+    hasBone = false;
+    hasAnimation = false;
+    boneNum = 0;
 }
 
 Model::~Model(){
@@ -68,6 +79,90 @@ void Model::drawModel(float time)
 void Model::changeAnimation(string name){
     if (animations.find(name) != animations.end())
         cur_animation = animations[name]->scene;
+}
+
+Model* Model::plane(Shader* shader){
+    vector<Vertex> vertices;
+    vector<unsigned int> indices;
+    vector<Texture> textures;
+
+    float planeVertices[] = {
+        // positions          // texture Coords (note we set these higher than 1 (together with GL_REPEAT as texture wrapping mode). this will cause the floor texture to repeat)
+        5.0f, 0.0f, 5.0f, 2.0f, 0.0f, 0.0f, 1.0f, 0.0f,
+        -5.0f, 0.0f, 5.0f, 0.0f, 0.0f, 0.0f, 1.0f, 0.0f,
+        -5.0f, 0.0f, -5.0f, 0.0f, 2.0f, 0.0f, 1.0f, 0.0f,
+        5.0f, 0.0f, -5.0f, 2.0f, 2.0f, 0.0f, 1.0f, 0.0f,
+    };
+
+    indices = { // 注意索引从0开始! 
+        0, 1, 3, // 第一个三角形
+        1, 2, 3  // 第二个三角形
+    };
+
+    Vertex temp;
+
+    for (int i = 0; i < 4; i++)
+    {
+        temp.Position = glm::vec3(planeVertices[0 + i * 8], planeVertices[1 + i * 8], planeVertices[2 + i * 8]);
+        temp.TexCoords = glm::vec2(planeVertices[3 + i * 8], planeVertices[4 + i * 8]);
+        temp.Normal = glm::vec3(planeVertices[5 + i * 8], planeVertices[6 + i * 8], planeVertices[7 + i * 8]);
+        vertices.push_back(temp);
+    }
+
+    Material mat;
+    mat.specular = glm::vec3(0.0f, 0.0f, 0.0f);
+
+    Texture texture;
+    texture.id = TextureFromFile("wall.jpg", "assets\\images");
+    texture.type = "texture_diffuse";
+    texture.path = "assets\\images\\wall.jpg";
+    textures.push_back(texture);
+
+    Model* ret = new Model(shader);
+    ret->meshes.push_back(Mesh(ret, vertices, indices, textures, ret->hasBone, ret->boneNum, mat));
+
+    return ret;
+}
+
+Model* Model::vertical_plane(Shader* shader){
+    vector<Vertex> vertices;
+    vector<unsigned int> indices;
+    vector<Texture> textures;
+
+    float planeVertices[] = {
+        0.0f, 0.5f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 1.0f,
+        0.0f, -0.5f, 0.0f, 0.0f, 1.0f, 0.0f, 0.0f, 1.0f,
+        1.0f, -0.5f, 0.0f, 1.0f, 1.0f, 0.0f, 0.0f, 1.0f,
+        1.0f, 0.5f, 0.0f, 1.0f, 0.0f, 0.0f, 0.0f, 1.0f,
+    };
+
+    indices = { // 注意索引从0开始! 
+        0, 1, 2, // 第一个三角形
+        0, 2, 3  // 第二个三角形
+    };
+
+    Vertex temp;
+
+    for (int i = 0; i < 4; i++)
+    {
+        temp.Position = glm::vec3(planeVertices[0 + i * 8], planeVertices[1 + i * 8], planeVertices[2 + i * 8]);
+        temp.TexCoords = glm::vec2(planeVertices[3 + i * 8], planeVertices[4 + i * 8]);
+        temp.Normal = glm::vec3(planeVertices[5 + i * 8], planeVertices[6 + i * 8], planeVertices[7 + i * 8]);
+        vertices.push_back(temp);
+    }
+
+    Material mat;
+
+    Texture texture;
+    texture.id = TextureFromFile("blending_transparent_window.png", "assets\\images");
+    texture.type = "texture_diffuse";
+    texture.path = "assets\\images\\blending_transparent_window.png";
+    textures.push_back(texture);
+
+    Model* ret = new Model(shader, BLEND_OBJECT);
+    ret->meshes.push_back(Mesh(ret, vertices, indices, textures, ret->hasBone, ret->boneNum, mat));
+
+    return ret;
 }
 
 void Model::loadModel(string const &path)
@@ -233,7 +328,7 @@ Mesh Model::processMesh(aiMesh *mesh, const aiScene *scene)
     textures.insert(textures.end(), heightMaps.begin(), heightMaps.end());
 
     // return a mesh object created from the extracted mesh data
-    return Mesh(this, scene, vertices, indices, textures, mesh_hasBone, mesh->mNumBones, mat);
+    return Mesh(this, vertices, indices, textures, mesh_hasBone, mesh->mNumBones, mat);
 }
 
 vector<Texture> Model::loadMaterialTextures(aiMaterial *mat, aiTextureType type, string typeName)

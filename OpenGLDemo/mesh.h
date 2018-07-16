@@ -111,7 +111,7 @@ public:
 	bool hasBone;
 	int boneNum;
 
-	Mesh(const Model* m, const aiScene* sc, vector<Vertex> vertices, vector<unsigned int> indices, vector<Texture> textures, bool hasBone = false, int boneNum = 0, Material material = Material()) : model(m)
+	Mesh(const Model* m, vector<Vertex> vertices, vector<unsigned int> indices, vector<Texture> textures, bool hasBone = false, int boneNum = 0, Material material = Material()) : model(m)
     {
         this->vertices = vertices;
         this->indices = indices;

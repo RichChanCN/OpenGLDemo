@@ -50,7 +50,7 @@ static unsigned int TextureFromFile(const char *path, const string &directory, b
 class Model : public GameObject
 {
 public:
-	Model(string const &path, Shader* shader, Type tt = COMMON_OBJECT, bool gamma = false);
+	Model(string const &path, Shader* shader, Type tt = COMMON_OBJECT);
 	~Model();
 
     string directory;//模型文件所在目录
@@ -69,7 +69,11 @@ public:
     void loadAnimation(string const &path, string anim_name);
 	//切换动画
     void changeAnimation(string name);
+    //添加一个平面
+    static Model* plane(Shader* shader);
+    static Model* vertical_plane(Shader* shader);
 private:
+    Model(Shader* shader, Type tt = COMMON_OBJECT);
 	const aiScene* scene;
     Assimp::Importer* importer;
     const aiScene* cur_animation;
