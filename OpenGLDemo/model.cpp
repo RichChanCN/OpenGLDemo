@@ -5,6 +5,7 @@ importer(new Assimp::Importer())
 {
 	hasBone = false;
 	hasAnimation = false;
+    etype = NORMAL;
 	boneNum = 0;
 	scene = importer->ReadFile(path, aiProcess_Triangulate | aiProcess_FlipUVs | aiProcess_CalcTangentSpace);
 	loadModel(path);
@@ -17,6 +18,7 @@ GameObject(shader, tt)
     importer = NULL;
     scene = NULL;
     cur_animation = NULL;
+    etype = NORMAL;
     hasBone = false;
     hasAnimation = false;
     boneNum = 0;
@@ -51,8 +53,42 @@ Model::~Model(){
 void Model::draw(float time){
 	if (type == EMPTY || shader == NULL)
 		return;
-	glm::mat4 model_mat = getModelMat1(this).tomat4();
-	shader->setMat4("model", model_mat);
+    glm::mat4 model_mat;
+    switch (etype)
+    {
+    case NORMAL:
+        model_mat = getModelMat1(this).tomat4();
+        shader->setMat4("model", model_mat);
+        drawModel(time);
+
+        break;
+    case BORDER:
+        model_mat = getModelMat1(this).tomat4();
+        shader->setMat4("model", model_mat);
+        glStencilFunc(GL_ALWAYS, 1, 0xFF);
+        glStencilMask(0xFF);
+        drawModel(time);
+        scale_rate = 1.1f * scale_rate;
+        model_mat = getModelMat1(this).tomat4();
+        shader->setMat4("model", model_mat);
+        shader->setBool("isSingleColor", true);
+        glStencilFunc(GL_NOTEQUAL, 1, 0xFF);
+        glStencilMask(0x00);
+        glDisable(GL_DEPTH_TEST);
+        drawModel(time);
+        glStencilMask(0xFF);
+        glEnable(GL_DEPTH_TEST);
+        scale_rate = scale_rate / 1.1f;
+        shader->setBool("isSingleColor", false);
+
+        break;
+    default:
+        model_mat = getModelMat1(this).tomat4();
+        shader->setMat4("model", model_mat);
+        drawModel(time);
+
+        break;
+    }
 
 	drawModel(time);
 }
@@ -79,6 +115,14 @@ void Model::drawModel(float time)
 void Model::changeAnimation(string name){
     if (animations.find(name) != animations.end())
         cur_animation = animations[name]->scene;
+}
+
+effectType Model::getEffectType(){
+    return etype;
+}
+
+void Model::setEffectType(effectType et){
+    etype = et;
 }
 
 Model* Model::plane(Shader* shader){

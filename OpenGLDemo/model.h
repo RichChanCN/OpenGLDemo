@@ -24,7 +24,11 @@
 #include <map>
 #include <vector>
 using namespace std;
-
+//特效类型
+enum effectType{
+    NORMAL,
+    BORDER,
+};
 //骨骼动画结构
 struct Animation{
 	Animation(){
@@ -72,6 +76,9 @@ public:
     //添加一个平面
     static Model* plane(Shader* shader);
     static Model* vertical_plane(Shader* shader);
+
+    effectType getEffectType();
+    void setEffectType(effectType etype);
 private:
     Model(Shader* shader, Type tt = COMMON_OBJECT);
 	const aiScene* scene;
@@ -79,6 +86,8 @@ private:
     const aiScene* cur_animation;
 	map<string, Animation*> animations;
     aiMatrix4x4 globalInverseTransform;
+    Shader effect_shader;
+    effectType etype;
 
     /*  Functions   */
 	//绘制模型，虚函数draw内部调用它

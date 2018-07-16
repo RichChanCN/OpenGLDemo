@@ -31,6 +31,8 @@ uniform bool hasDiffuseTex;
 uniform bool hasSpecularTex;
 uniform bool hasNormalTex;
 
+uniform bool isSingleColor;
+
 uniform vec3 viewPos;
 uniform Tex_Material tex_material;
 uniform Material material;
@@ -39,8 +41,12 @@ uniform Light light;
 in vec2 TexCoords;
 
 void main()
-{   
-    vec3 norm = normalize(Normal);
+{
+	if(isSingleColor){
+		FragColor = vec4(0.04, 0.28, 0.26, 1.0);
+	}
+	else{
+	vec3 norm = normalize(Normal);
 	if(hasNormalTex){
 		vec3 norm = texture(tex_material.texture_normal, TexCoords).rgb;
 		norm = normalize(norm * 2.0 - 1.0);
@@ -82,4 +88,6 @@ void main()
     vec3 result = ambient + diffuse + specular;
 
     FragColor = vec4(result, 1.0);
+	}
+
 }

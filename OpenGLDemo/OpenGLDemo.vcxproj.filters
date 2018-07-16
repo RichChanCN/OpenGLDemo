@@ -91,9 +91,6 @@
     <None Include="shaders\light_vs.glsl">
       <Filter>资源文件</Filter>
     </None>
-    <None Include="shaders\load_model_fs.glsl">
-      <Filter>资源文件</Filter>
-    </None>
     <None Include="shaders\load_model_vs.glsl">
       <Filter>资源文件</Filter>
     </None>
@@ -107,6 +104,9 @@
       <Filter>资源文件</Filter>
     </None>
     <None Include="shaders\blend_fs.glsl">
+      <Filter>资源文件</Filter>
+    </None>
+    <None Include="shaders\load_model_fs.glsl">
       <Filter>资源文件</Filter>
     </None>
   </ItemGroup>
