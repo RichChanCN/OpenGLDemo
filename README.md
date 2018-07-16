@@ -26,4 +26,5 @@ OpenGLDemo\
 |--mylib.h			//练习用的矩阵计算还有四元素定义库
 |--mylib.cpp
 |--main.cpp			//主函数
+|--opengl.rar		//运行环境
 |--*.dll			//程序运行必须的动态链接库
